@@ -1,0 +1,84 @@
+#include <Arduino.h>
+#include "A4988.h"
+
+const int DIR  = 23;
+const int STEP = 22;
+const int STEPS_PER_CIRCLE = 200;
+
+const int LED_PIN = LED_BUILTIN;
+
+#define MS1 18
+#define MS2 19
+#define MS3 21
+
+A4988 stepper(STEPS_PER_CIRCLE, DIR, STEP, MS1, MS2, MS3);
+void setup()
+{
+
+  Serial.begin(115200);
+  Serial.println("Booting");
+  Serial.printf("LED_PIN: %d \n", LED_PIN);
+
+  // Declare pins as Outputs
+  // pinMode(STEP,    OUTPUT);
+  // pinMode(DIR,     OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+
+  stepper.begin(120, 1);
+}
+
+void loop()
+{
+  Serial.println("Forward");
+  digitalWrite(LED_PIN, HIGH);
+  for (int i=0; i<200; i++) {
+    stepper.move(1);
+    delay(6);
+  }
+
+  delay(1000);
+  Serial.println("Backward");
+  digitalWrite(LED_PIN, LOW);
+  for (int i=0; i<200; i++) {
+    stepper.move(-1);
+    delay(6);
+  }
+  delay(1000);
+  // // Set motor direction clockwise
+  // stepper.rotate(360);
+
+
+  // digitalWrite(LED_PIN, LOW);
+  // stepper.rotate(-360);
+  // delay(1000);
+  // // digitalWrite(DIR, HIGH);
+  // // delay(10);
+
+
+  // // Spin motor slowly
+  // for(int i = 0; i < STEPS_PER_CIRCLE; i++)
+  // {
+  //   digitalWrite(STEP, HIGH);
+  //   delay(1);
+  //   digitalWrite(STEP, LOW);
+  //   delay(1);
+  // }
+
+  // delay(1000); // Wait a second
+
+  // // Set motor direction counterclockwise
+  // Serial.println("Backward");
+  // digitalWrite(DIR, LOW);
+  // digitalWrite(STEP, LOW);
+  // delay(10);
+
+  // // Spin motor quickly
+  // for(int i = 0; i < STEPS_PER_CIRCLE; i++)
+  // {
+  //   digitalWrite(STEP, HIGH);
+  //   delay(1);
+  //   digitalWrite(STEP, LOW);
+  //   delay(1);
+  // }
+  // delay(1000); // Wait a second
+}

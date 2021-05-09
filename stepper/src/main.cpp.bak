@@ -1,0 +1,65 @@
+/*
+  SilentStepStick TMC2208/TMC2209 Example
+  Rsense: 0.11 Ohm
+
+  Other examples/libraries can be found here:
+  https://github.com/teemuatlut/TMCStepper
+  https://github.com/trinamic/TMC-API
+  https://github.com/manoukianv/TMC2208Pilot
+
+  Example source code free to use.
+  Further information: https://learn.watterott.com/license/
+*/
+
+#include <Arduino.h>
+
+// Note: You also have to connect GND, 5V/VIO and VM.
+//       A connection diagram can be found in the schematics.
+#define EN_PIN    15 //enable (CFG6)
+#define DIR_PIN   4 //direction
+#define STEP_PIN  2 //step
+#define LED_PIN   LED_BUILTIN //Built in LED
+
+void setup()
+{
+  //set pin modes
+  pinMode(EN_PIN,   OUTPUT);
+  pinMode(DIR_PIN,  OUTPUT);
+  pinMode(STEP_PIN, OUTPUT);
+
+  digitalWrite(EN_PIN, HIGH); //deactivate driver (LOW active)
+
+  digitalWrite(DIR_PIN, LOW); //LOW or HIGH
+  digitalWrite(STEP_PIN, LOW);
+
+  digitalWrite(EN_PIN, LOW); //activate driver
+  //LED BUILT_IN is GPIO 33
+  pinMode(LED_PIN, OUTPUT); // Set the pin as output
+
+  Serial.begin(115200);
+  Serial.println("Booting");
+}
+
+void makeStep()
+{
+    //make steps
+  Serial.println("High");
+  digitalWrite(STEP_PIN, HIGH);
+  digitalWrite(LED_PIN, HIGH);
+  delay(100);
+  Serial.println("Low");
+  digitalWrite(STEP_PIN, LOW);
+  digitalWrite(LED_PIN, LOW);
+  delay(100);
+}
+
+void loop()
+{
+  makeStep();
+/*
+  digitalWrite(33, LOW); //Turn on
+  delay (1000); //Wait 1 sec
+  digitalWrite(33, HIGH); //Turn off
+  delay (1000); //Wait 1 sec
+*/
+}

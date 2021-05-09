@@ -1,0 +1,66 @@
+#include <Arduino.h>
+
+const int PIN_DIR  = 23;
+const int PIN_STEP = 22;
+const int PIN_EN = 21;
+const int STEP_ROUND = 200;
+
+const int LED_PIN = LED_BUILTIN;
+
+#define DELAY_BETWEEN_STEPS 10
+
+void setup()
+{
+
+  Serial.begin(115200);
+  Serial.println("Booting");
+  Serial.printf("LED_PIN: %d \n", LED_PIN);
+
+  pinMode(PIN_EN,  OUTPUT);
+  digitalWrite(PIN_EN, HIGH);
+  // Declare pins as Outputs
+  // pinMode(PIN_STEP,    OUTPUT);
+  // pinMode(PIN_DIR,     OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+
+  // режим для STEP и DIR как OUTPUT
+  pinMode(PIN_STEP, OUTPUT);
+  pinMode(PIN_DIR,  OUTPUT);
+
+
+  // начальные значения
+  digitalWrite(PIN_STEP, HIGH);
+  digitalWrite(PIN_DIR, LOW);
+  digitalWrite(PIN_EN, LOW);
+  delay(100);
+}
+
+void loop()
+{
+ // направление вращения
+  digitalWrite(LED_PIN, HIGH);
+  digitalWrite(PIN_DIR, HIGH);
+  delay(10);
+
+  // сделать 1 оборот
+  for(int j = 0; j < STEP_ROUND * 10; j++) {
+    digitalWrite(PIN_STEP, HIGH);
+    delay(DELAY_BETWEEN_STEPS);
+    digitalWrite(PIN_STEP, LOW);
+    delay(DELAY_BETWEEN_STEPS);
+  }
+  delay(500);
+
+  // // изменить направление вращения
+  // digitalWrite(LED_PIN, LOW);
+  // digitalWrite(PIN_DIR, LOW);
+  // delay(10);
+  // // сделать 1 оборот
+  // for(int j = 0; j < STEP_ROUND * 10; j++) {
+  //   digitalWrite(PIN_STEP, HIGH);
+  //   delay(DELAY_BETWEEN_STEPS);
+  //   digitalWrite(PIN_STEP, LOW);
+  //   delay(DELAY_BETWEEN_STEPS);
+  // }
+  // delay(500);
+}

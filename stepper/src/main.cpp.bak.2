@@ -1,0 +1,79 @@
+#include <HardwareSerial.h>
+#include <TMCStepper.h>
+
+#define RX2 25
+#define TX2 27
+#define DIAG_PIN           14         // STALL motor 2
+#define EN_PIN             21         // Enable
+#define DIR_PIN            24         // Direction
+#define STEP_PIN           22         // Step
+#define SERIAL_PORT        Serial2    // TMC2208/TMC2224 HardwareSerial port
+#define DRIVER_ADDRESS     0b00       // TMC2209 Driver address according to MS1 and MS2
+#define R_SENSE            0.11f      // E_SENSE for current calc.
+#define STALL_VALUE        2          // [0..255]
+
+hw_timer_t * timer1 = NULL;
+TMC2208Stepper driver(&SERIAL_PORT, R_SENSE); // , DRIVER_ADDRESS );
+
+void activate_interrupt();
+
+
+void IRAM_ATTR onTimer() {
+  digitalWrite(STEP_PIN, !digitalRead(STEP_PIN));
+}
+
+void setup() {
+  Serial.begin(250000);         // Init serial port and set baudrate
+  while(!Serial);               // Wait for serial port to connect
+  Serial.println("\nStart...");
+  SERIAL_PORT.begin(115200, SERIAL_8N1, RX2, TX2);
+  // SERIAL_PORT.begin(115200, SERIAL_8N1);
+
+  pinMode(DIAG_PIN ,INPUT);
+  pinMode(EN_PIN ,OUTPUT);
+  pinMode(STEP_PIN ,OUTPUT);
+  pinMode(DIR_PIN ,OUTPUT);
+
+  digitalWrite(EN_PIN ,LOW);
+  digitalWrite(DIR_PIN ,LOW);
+
+  driver.begin();
+  driver.toff(4);
+  driver.blank_time(24);
+  driver.rms_current(500);
+  driver.microsteps(16);
+  // driver.TCOOLTHRS(0xFFFFF); // 20bit max
+  // driver.semin(0);
+  // driver.semax(2);
+  driver.shaft(false);
+  // driver.sedn(0b01);
+  // driver.SGTHRS(STALL_VALUE);
+
+  activate_interrupt();
+}
+
+void loop() {
+ static uint32_t last_time=0;
+ uint32_t ms = millis();
+
+ if((ms-last_time) > 100) { //run every 0.1s
+    last_time = ms;
+
+    // Serial.print("0 ");
+    // Serial.print(driver.SG_RESULT(), DEC);
+    // Serial.print(" ");
+    // Serial.println(driver.cs2rms(driver.cs_actual()), DEC);
+  }
+}
+
+void activate_interrupt(){
+  {
+    cli();//stop interrupts
+    timer1 = timerBegin(3, 8,true); // Initialize timer 4. Se configura el timer,  ESP(0,1,2,3)
+                                 // prescaler of 8, y true es una bandera que indica si la interrupcion se realiza en borde o en nivel
+    timerAttachInterrupt(timer1, &onTimer, true); //link interrupt with function onTimer
+    timerAlarmWrite(timer1, 8000, true); //En esta funcion se define el valor del contador en el cual se genera la interrupción del timer
+    timerAlarmEnable(timer1);    //Enable timer
+    sei();//allow interrupts
+  }
+}
